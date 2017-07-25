@@ -1,0 +1,7 @@
+PySerLCD.egg-info/
+build/
+dist/
+
+*.swp
+*.pyc
+
