@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import lcd
+from PySerLCD import lcd
 import time
 import psutil
 import serial
