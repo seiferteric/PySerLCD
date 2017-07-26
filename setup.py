@@ -7,5 +7,10 @@ setup(
     author = "Eric Seifert",
     author_email = "seiferteric@gmail.com",
     description = "Library to drive the sparkfun SerLCD",
-    install_requires = ['pySerial']
+    install_requires = ['pySerial'],
+    entry_points = {
+        'console_scripts': [
+            'pyserlcd = PySerLCD.cli:main'
+            ]
+        }
     )

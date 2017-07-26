@@ -2,6 +2,7 @@
 import serial
 import struct
 import time
+import threading
 CMD_CMD        = 0xFE
 CMD_CLEAR      = 0x01
 CMD_INVERT     = 0x12
@@ -21,9 +22,11 @@ CMD_SET_CUR_POS= 0x80
 CONFIG_CONFIG  = 0x7C
 
 class Lcd(object):
-  def __init__(self, port, baud):
+  def __init__(self, port, baud, reset=True):
+    self.scrolling = False
     self.serial = serial.Serial(port=port, baudrate=baud, bytesize=8, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
-    self.reset()
+    if reset:
+      self.reset()
     
   def clear(self):
     self.command(CMD_CLEAR)
@@ -40,7 +43,10 @@ class Lcd(object):
     self.serial.write(cmd_str)
 
   def write(self, string):
-    self.serial.write(bytes(string, 'UTF-8'))
+    if string.__class__ == bytes:
+      self.serial.write(string)
+    else:
+      self.serial.write(bytes(string, 'UTF-8'))
 
   def invert(self):
     self.command(CMD_INVERT)
@@ -97,3 +103,20 @@ class Lcd(object):
     if y == 1:
       pos += 64
     self.command(CMD_SET_CUR_POS | pos)
+
+  def start_scroll(self, dir, rate, len):
+    if self.scrolling:
+      return
+    self.scrolling = True
+    self._t = threading.Thread(target=self._scroll, args=(dir, rate, len))
+    self._t.start()
+  def _scroll(self, dir, rate, leng):
+    pos = 0
+    while pos < leng:
+      self.scroll_left()
+      pos += 1
+      time.sleep(rate)
+
+
+
+
